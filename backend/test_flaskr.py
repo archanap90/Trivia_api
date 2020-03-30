@@ -72,7 +72,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertLessEqual(data['deleted_question'],20) 
 
     def test_delete_nonexistent_question(self):
-        """ Tests DELETE /questions/<int:question_id> to delete a specific question """
+        """ Tests DELETE /questions/<int:question_id> to delete a nonexistent question """
         
         res = self.client().delete('/questions/14')
         data = res.get_json()
