@@ -116,6 +116,7 @@ def create_app(test_config=None):
     Question.filter_by(id=question_id).delete()
     return jsonify({
       "success": True,
+      "deleted_question": question_id,
       "message": "Successfully Deleted!"
     })
     #db.session.commit()
@@ -136,14 +137,14 @@ def create_app(test_config=None):
     error = False
     data_string = request.data
     question_data = json.loads(data_string)
-    print(question_data)
-    question_string = question_data['question']
-    answer = question_data['answer']
-    category = question_data['category']
-    difficulty = question_data['difficulty']
-
-    question = Question(question=question_string,answer=answer,category=category,difficulty=difficulty)
     try:
+      question_string = question_data['question']
+      answer = question_data['answer']
+      category = question_data['category']
+      difficulty = question_data['difficulty']
+
+      question = Question(question=question_string,answer=answer,category=category,difficulty=difficulty)
+    
       question.insert()
     except:
       error = True
@@ -195,12 +196,15 @@ def create_app(test_config=None):
   def get_questions(category_id):
     questions = Question.query.filter_by(category=category_id).all()
     formatted_questions = [question.format() for question in questions]
-    return jsonify({
-      "success": True,
-      "questions": formatted_questions,
-      "totalQuestions": len(formatted_questions),
-      "currentCategory": ''
-    })
+    if len(formatted_questions) <=0:
+      abort(404)
+    else:
+      return jsonify({
+        "success": True,
+        "questions": formatted_questions,
+        "totalQuestions": len(formatted_questions),
+        "currentCategory": ''
+      })
 
   '''
   @TODO: 
@@ -276,6 +280,13 @@ def create_app(test_config=None):
       "message": "Unprocessable entity"
     }),422
 
+  @app.errorhandler(500)
+  def server_error(error):
+    return jsonify({
+      "success": False,
+      "error": 500,
+      "message": "Internal Server Error"
+    }),500
 
   return app
 
