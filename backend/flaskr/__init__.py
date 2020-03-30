@@ -11,9 +11,9 @@ from models import setup_db, Question, Category
 QUESTIONS_PER_PAGE = 10
 
 
-def paginate_questions(request,selection):
-  page = request.args.get('page',1,type=int)
-  start = (page - 1)* QUESTIONS_PER_PAGE
+def paginate_questions(request, selection):
+  page = request.args.get('page', 1, type=int)
+  start = (page - 1) * QUESTIONS_PER_PAGE
   end = start + QUESTIONS_PER_PAGE
 
   questions = [question.format() for question in selection]
@@ -21,16 +21,17 @@ def paginate_questions(request,selection):
 
   return current_questions
 
+
 def create_app(test_config=None):
-  # create and configure the app
+  #create and configure the app
   app = Flask(__name__)
   setup_db(app)
-  
   '''
-  @TODO: Set up CORS. Allow '*' for origins. Delete the sample route after completing the TODOs
+  @TODO: Set up CORS. Allow '*' for origins. 
+  Delete the sample route after completing the TODOs
+  cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
   '''
   CORS(app)
-  #cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
   '''
   @TODO: Use the after_request decorator to set Access-Control-Allow
@@ -38,25 +39,24 @@ def create_app(test_config=None):
   ##After a request is received run this method - CORS headers
   @app.after_request
   def after_request(response):
-    response.headers.add('Access-Control-Allow-Headers','Content-Type, Authorization')
-    response.headers.add('Access-Control-Allow-Methods','GET, POST, PATCH, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
     return response
-  
 
   def get_formatted_categories():
     categories = Category.query.all()
-    ## print(type(categories[0].format())) => <class 'models.Category'> to <class 'dict'>
-    formatted_categories =[None]+ [category.type for category in categories]
+    '''print(type(categories[0].format())) => <class 'models.Category'> to <class 'dict'>'''
+    formatted_categories = [None] + [category.type for category in categories]
     return formatted_categories
 
   '''
-  @TODO: 
+  @TODO:
   Create an endpoint to handle GET requests 
   for all available categories.
   '''
   @app.route('/')
   def index():
-    return jsonify({'message':'Welcome to Trivia!'})
+    return jsonify({'message': 'Welcome to Trivia!'})
 
   '''
   @TODO: 
@@ -86,14 +86,12 @@ def create_app(test_config=None):
       "categories": get_formatted_categories()
     })
 
-
   @app.route('/categories')
   def show_categories():
     return jsonify({
       "success": True,
       "categories": get_formatted_categories()
     })
-  
 
   @app.route('/questions/<int:question_id>')
   def get_question(question_id):
@@ -146,7 +144,7 @@ def create_app(test_config=None):
       question = Question(question=question_string,answer=answer,category=category,difficulty=difficulty)
     
       question.insert()
-    except:
+    except Exception as err:
       error = True
       print(sys.exc_info())
     finally:
@@ -177,7 +175,7 @@ def create_app(test_config=None):
     searchTerm = "%" + data['searchTerm'] + "%"
     result = Question.query.filter(Question.question.ilike(searchTerm)).all()
     formatted_questions = [question.format() for question in result]
-    return jsonify( {
+    return jsonify({
       "questions": formatted_questions,
       "totalQuestions":len(formatted_questions),
       "currentCategory": ""
@@ -289,5 +287,3 @@ def create_app(test_config=None):
     }),500
 
   return app
-
-    
