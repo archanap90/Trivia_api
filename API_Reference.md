@@ -85,6 +85,7 @@ curl --request DELETE 'http://localhost:3000/questions/12' \
 
 {
     "success": true,
+    deleted_question": 12,
     "message": "Successfully Deleted!"
 }
 ```
