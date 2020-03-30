@@ -40,7 +40,7 @@ def create_app(test_config=None):
   @app.after_request
   def after_request(response):
     response.headers.add('Access-Control-Allow-Headers', 'Content-Type, Authorization')
-    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, OPTIONS')
+    response.headers.add('Access-Control-Allow-Methods', 'GET, POST, PATCH, DELETE, PUT, OPTIONS')
     return response
 
   def get_formatted_categories():
@@ -93,7 +93,7 @@ def create_app(test_config=None):
       "categories": get_formatted_categories()
     })
 
-  @app.route('/questions/<int:question_id>')
+  @app.route('/questions/<int:question_id>', methods=['GET'])
   def get_question(question_id):
     question = Question.query.filter_by(id=question_id).first()
     return jsonify({
@@ -108,15 +108,21 @@ def create_app(test_config=None):
   This removal will persist in the database and when you refresh the page. 
   """
 
-  @app.route('/question/<int:question_id>', methods=['DELETE'])
+  @app.route('/questions/<int:question_id>', methods=['DELETE'])
   def delete_question(question_id):
     print("delete request received  ")
-    Question.filter_by(id=question_id).delete()
-    return jsonify({
-      "success": True,
-      "deleted_question": question_id,
-      "message": "Successfully Deleted!"
-    })
+    delete_question = Question.query.get(question_id)
+    if delete_question is None:
+      abort(404)
+    try:
+      delete_question.delete()
+      return jsonify({
+        "success": True,
+        "deleted_question": question_id,
+        "message": "Successfully Deleted!"
+      })
+    except:
+      abort(500)
     #db.session.commit()
 
 

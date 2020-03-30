@@ -63,14 +63,21 @@ class TriviaTestCase(unittest.TestCase):
     def test_delete_question(self):
         """ Tests DELETE /questions/<int:question_id> to delete a specific question """
         
-        res = self.client().delete('/questions/20')
+        res = self.client().delete('/questions/15')
         data = res.get_json()
         deleted_not_found = Question.query.get(20)
         self.assertEqual(res.status_code,200)
         self.assertEqual(deleted_not_found,None)
         self.assertTrue(data['success'])
         self.assertLessEqual(data['deleted_question'],20) 
+
+    def test_delete_nonexistent_question(self):
+        """ Tests DELETE /questions/<int:question_id> to delete a specific question """
         
+        res = self.client().delete('/questions/14')
+        data = res.get_json()
+        self.assertEqual(res.status_code,404)
+        self.assertFalse(data['success'])
 
     def test_add_new_question(self):
         ''' Test for POST /questions/add - successfull addition of new question'''
@@ -138,13 +145,16 @@ class TriviaTestCase(unittest.TestCase):
     def test_no_questions_available_for_quiz(self):
         ''' TEST POST /quizzes to get random question from consumed category'''
         res = self.client().post("/quizzes",json = {
-            "quiz_category": 3,
+            "quiz_category": 
+                {
+                    "type":"Geography",
+                    "id":"3"
+                },
             "previous_questions": [13,14,15]
         })
         data  = res.get_json()
-        print(data)
-        self.assertFalse(data['success'])
-        #self.assertTrue(data['forceEnd'])
+        #self.assertFalse(data['success'])
+        self.assertTrue(data['forceEnd'])
 
 
 # Make the tests conveniently executable
